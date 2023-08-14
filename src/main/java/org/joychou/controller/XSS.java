@@ -27,8 +27,14 @@ public class XSS {
     @RequestMapping("/reflect")
     @ResponseBody
     public static String reflect(String xss) {
-        return xss;
+        return encode(xss);
     }
+    
+    private static String encode(String origin) {
+        // Use appropriate encoding methods for HTML escaping.
+        return org.springframework.web.util.HtmlUtils.htmlEscape(origin);
+    }
+
 
     /**
      * Vul Code.
@@ -40,7 +46,8 @@ public class XSS {
     @RequestMapping("/stored/store")
     @ResponseBody
     public String store(String xss, HttpServletResponse response) {
-        Cookie cookie = new Cookie("xss", xss);
+        String sanitizedXss = encode(xss);
+        Cookie cookie = new Cookie("xss", sanitizedXss);
         response.addCookie(cookie);
         return "Set param into cookie";
     }
@@ -55,7 +62,12 @@ public class XSS {
     @RequestMapping("/stored/show")
     @ResponseBody
     public String show(@CookieValue("xss") String xss) {
-        return xss;
+        return encode(xss);
+    }
+    
+    private static String encode(String origin) {
+        // Use appropriate encoding methods for HTML escaping.
+        return org.springframework.web.util.HtmlUtils.htmlEscape(origin);
     }
 
     /**
