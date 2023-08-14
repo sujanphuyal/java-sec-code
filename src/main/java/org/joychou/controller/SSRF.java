@@ -307,12 +307,24 @@ public class SSRF {
      */
     @GetMapping("/dnsrebind/vuln")
     public String DnsRebind(String url) {
-        java.security.Security.setProperty("networkaddress.cache.negative.ttl" , "0");
-        if (!SecurityUtil.checkSSRFWithoutRedirect(url)) {
-            return "Dangerous url";
+        if (!SecurityUtil.isHttp(url)) {
+            return "[-] Invalid URL protocol";
         }
-        return HttpUtil.get(url);
+    
+        try {
+            java.security.Security.setProperty("networkaddress.cache.negative.ttl", "0");
+            if (!SecurityUtil.checkSSRFWithoutRedirect(url)) {
+                return "Dangerous URL";
+            }
+    
+            String response = HttpUtil.get(url);
+            // Process the response or return it as needed
+            return response;
+        } catch (Exception e) {
+            return "[-] Error: " + e.getMessage();
+        }
     }
+
 
 
 }
